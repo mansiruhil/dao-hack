@@ -1,0 +1,20 @@
+:root {
+  --glow-emerald: 0 0 26px rgba(16, 185, 129, 0.35);
+}
+.glow {
+  box-shadow: var(--glow-emerald);
+}
+@keyframes floaty {
+  0% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(1deg);
+  }
+  100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+}
+.floaty {
+  animation: floaty 4s ease-in-out infinite;
+}

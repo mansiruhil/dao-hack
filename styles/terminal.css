@@ -1,0 +1,102 @@
+:root {
+  --bg: #0d0d0d;
+  --green: #00ff66;
+  --cyan: #00ffff;
+  --text: #d0ffd0;
+}
+
+* {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+}
+
+.text-glow {
+  color: var(--green);
+  text-shadow: 0 0 10px rgba(0, 255, 102, 0.55), 0 0 20px rgba(0, 255, 102, 0.25);
+}
+
+.scanlines {
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.25) 0px,
+    rgba(0, 0, 0, 0.25) 1px,
+    transparent 2px,
+    transparent 4px
+  );
+  opacity: 0.25;
+  mix-blend-mode: overlay;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.terminal-window {
+  position: relative;
+  z-index: 2;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(0, 255, 102, 0.25);
+  border-radius: 10px;
+  padding: 16px;
+  box-shadow: 0 0 30px rgba(0, 255, 102, 0.08), inset 0 0 20px rgba(0, 255, 102, 0.05);
+}
+
+.terminal-heading {
+  color: var(--cyan);
+  text-shadow: 0 0 6px rgba(0, 255, 255, 0.45);
+}
+
+.terminal-prompt {
+  color: var(--text);
+  white-space: pre-wrap;
+}
+
+.cursor-blink {
+  color: var(--green);
+  animation: blink 1s steps(1, start) infinite;
+  margin-left: 2px;
+}
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+.terminal-btn {
+  color: var(--green);
+  background: rgba(0, 255, 102, 0.06);
+  border: 1px solid rgba(0, 255, 102, 0.3);
+  padding: 6px 12px;
+  border-radius: 6px;
+  text-shadow: 0 0 6px rgba(0, 255, 102, 0.45);
+  transition: transform .08s ease, box-shadow .2s ease, background .2s ease;
+}
+.terminal-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 0 18px rgba(0, 255, 102, 0.2);
+  background: rgba(0, 255, 102, 0.12);
+}
+.terminal-btn:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.ascii-confetti {
+  animation: flicker 1.2s infinite alternate;
+}
+@keyframes flicker {
+  from {
+    opacity: 0.85;
+  }
+  to {
+    opacity: 0.6;
+  }
+}
+
+a.terminal-link {
+  color: var(--cyan);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+a.terminal-link:hover {
+  color: #b4ffff;
+}
