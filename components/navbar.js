@@ -1,34 +1,47 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import "@/styles/terminal.css"
+import Link from "next/link";
+import { useWallet } from "@/lib/wallet";
+import "@/styles/terminal.css";
 
 export function Navbar() {
   return (
     <nav className="w-full border-b border-emerald-500/20 bg-black/40 backdrop-blur">
       <div className="mx-auto max-w-6xl px-4 h-12 flex items-center justify-between">
-        <Link href="/" className="text-[#00FF66] font-mono text-sm tracking-[0.08em] drop-shadow-[0_0_6px_#00FF66]">
+        <Link
+          href="/"
+          className="text-[#00FF66] font-mono text-sm tracking-[0.08em] drop-shadow-[0_0_6px_#00FF66]"
+        >
           {"<name soon>"}
         </Link>
         <ConnectWalletCommand />
       </div>
     </nav>
-  )
+  );
 }
 
 function ConnectWalletCommand() {
-  const enabled = !!process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID
+  const { connect, disconnect, isConnected, connecting, address } = useWallet();
+
   return (
     <button
-      className={`text-cyan-300 hover:text-cyan-200 font-mono text-xs tracking-wide ${enabled ? "cursor-pointer" : "opacity-60 cursor-not-allowed"}`}
-      title={enabled ? "Open Web3Modal" : "Set NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID to enable"}
+      className={`text-cyan-300 hover:text-cyan-200 font-mono text-xs tracking-wide ${
+        connecting ? "opacity-60" : "cursor-pointer"
+      }`}
+      disabled={connecting}
       onClick={async () => {
-        if (!enabled) return
-        const { openWeb3Modal } = await import("@/lib/wallet-connect")
-        openWeb3Modal()
+        if (isConnected) {
+          await disconnect();
+        } else {
+          await connect();
+        }
       }}
     >
-      [connect wallet]
+      {connecting
+        ? "[connecting...]"
+        : isConnected
+        ? `[${address?.slice(0, 4)}...${address?.slice(-4)}]`
+        : "[connect wallet]"}
     </button>
-  )
+  );
 }
