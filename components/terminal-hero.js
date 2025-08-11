@@ -21,13 +21,6 @@ export function TerminalHero({ onEnter = () => {}, autoProceed = false }) {
     return () => window.removeEventListener("keydown", handler);
   }, [onEnter, interactionEnabled]);
 
-  useEffect(() => {
-    if (autoProceed && finished) {
-      const t = setTimeout(() => onEnter(), 1000);
-      return () => clearTimeout(t);
-    }
-  }, [autoProceed, finished, onEnter]);
-
   const handleClick = () => {
     if (interactionEnabled) {
       onEnter();
