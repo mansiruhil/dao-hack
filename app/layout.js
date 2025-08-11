@@ -4,6 +4,11 @@ import LayoutClient from "./layout.client"
 
 export const metadata = {
   title: "demo",
+  icons: {
+    icon: "/logo.jpg",
+    shortcut: "/logo.jpg",
+    apple: "/logo.jpg",
+  },
 }
 
 export default function RootLayout({ children }) {
