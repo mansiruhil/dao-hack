@@ -8,12 +8,26 @@ export function Navbar() {
   return (
     <nav className="w-full border-b border-emerald-500/20 bg-black/40 backdrop-blur">
       <div className="mx-auto max-w-6xl px-4 h-12 flex items-center justify-between">
-        <Link
-          href="/"
-          className="text-[#00FF66] font-mono text-sm tracking-[0.08em] drop-shadow-[0_0_6px_#00FF66]"
-        >
-          {"<name soon>"}
-        </Link>
+        <div className="flex items-center gap-4">
+          <Link
+            href="/"
+            className="text-[#00FF66] font-mono text-sm tracking-[0.08em] drop-shadow-[0_0_6px_#00FF66]"
+          >
+            {"<name soon>"}
+          </Link>
+          <Link
+            href="/challenges"
+            className="text-cyan-300 hover:text-cyan-200 font-mono text-xs tracking-wide"
+          >
+            [coding]
+          </Link>
+          <Link
+            href="/quiz"
+            className="text-cyan-300 hover:text-cyan-200 font-mono text-xs tracking-wide"
+          >
+            [mcq]
+          </Link>
+        </div>
         <ConnectWalletCommand />
       </div>
     </nav>
