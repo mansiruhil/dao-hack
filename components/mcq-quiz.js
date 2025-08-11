@@ -31,6 +31,8 @@ export default function MCQQuiz() {
   function reset() {
     setAnswers(Array(questions.length).fill(null));
     setSubmitted(false);
+    setMintError(null);
+    setMintSuccess(false);
   }
 
   function clearQuestion(qi) {
@@ -38,6 +40,29 @@ export default function MCQQuiz() {
     const next = answers.slice();
     next[qi] = null;
     setAnswers(next);
+  }
+
+  async function handleMintReward() {
+    if (!address) return;
+
+    setMinting(true);
+    setMintError(null);
+    try {
+      const result = await mintQuizBadge({
+        score,
+        totalQuestions: questions.length,
+        toAddress: address,
+      });
+
+      if (!result.ok) {
+        throw new Error(result.error);
+      }
+      setMintSuccess(true);
+    } catch (error) {
+      setMintError(error.message);
+    } finally {
+      setMinting(false);
+    }
   }
 
   return (
@@ -54,16 +79,10 @@ export default function MCQQuiz() {
       {questions.map((q, qi) => {
         const picked = answers[qi];
         return (
-          <div
-            key={q.id}
-            className="rounded border border-gray-700 bg-gray-800/40 p-4"
-          >
-            <div className="font-semibold mb-2">
+          <div key={q.id} className="terminal-window relative">
+            <div className="font-semibold mb-4 text-[#D0FFD0]">
               Q{qi + 1}. {q.question}
             </div>
-            <div className="grid gap-2">
-          <div key={q.id} className="terminal-window relative">
-            <div className="font-semibold mb-4 text-[#D0FFD0]">Q{qi + 1}. {q.question}</div>
             <div className="grid gap-3 mb-6">
               {q.options.map((opt, oi) => {
                 const chosen = picked === oi;
@@ -73,7 +92,9 @@ export default function MCQQuiz() {
                   <label
                     key={oi}
                     className={`flex items-center gap-3 rounded px-4 py-3 cursor-pointer border transition-all duration-200 ${
-                      chosen ? "border-[#00FF66] bg-[#00FF66]/10" : "border-emerald-500/20 bg-black/20"
+                      chosen
+                        ? "border-[#00FF66] bg-[#00FF66]/10"
+                        : "border-emerald-500/20 bg-black/20"
                     } ${
                       submitted && correct
                         ? "border-emerald-500 bg-emerald-500/20"
@@ -88,18 +109,19 @@ export default function MCQQuiz() {
                       className="accent-[#00FF66]"
                       checked={chosen || false}
                       onChange={() => pick(qi, oi)}
+                      disabled={submitted}
                     />
-                    <span>
+                    <span className="text-[#D0FFD0] font-mono">
                       {String.fromCharCode(65 + oi)}. {opt}
                     </span>
-                    <span className="text-[#D0FFD0] font-mono">{String.fromCharCode(65 + oi)}. {opt}</span>
                   </label>
                 );
               })}
             </div>
             {submitted && (
               <div className="mt-4 text-sm text-emerald-300 font-mono">
-                Correct: {String.fromCharCode(65 + q.answer)}. {q.options[q.answer]}
+                Correct: {String.fromCharCode(65 + q.answer)}.{" "}
+                {q.options[q.answer]}
               </div>
             )}
             {picked !== null && !submitted && (
@@ -116,24 +138,17 @@ export default function MCQQuiz() {
         );
       })}
 
-      <div className="mt-6 flex flex-wrap items-center gap-3">
       <div className="mt-8 flex items-center gap-4">
         {!submitted ? (
           <button
             onClick={() => setSubmitted(true)}
-            className="px-4 py-2 rounded bg-emerald-600 hover:bg-emerald-500"
-          >
-            Submit
-          </button>
-          <button 
-            onClick={() => setSubmitted(true)} 
             className="terminal-btn px-6 py-3 text-base"
           >
             Submit
           </button>
         ) : (
           <>
-            <div className="text-lg font-semibold">
+            <div className="text-lg font-semibold text-[#00FF66] font-mono">
               Score: {score}/{questions.length} ({percentage}%)
             </div>
             <div className="flex gap-3">
@@ -141,7 +156,7 @@ export default function MCQQuiz() {
                 <button
                   onClick={handleMintReward}
                   disabled={minting || !address}
-                  className="px-4 py-2 rounded bg-cyan-600 hover:bg-cyan-500 disabled:opacity-50"
+                  className="terminal-btn px-6 py-3"
                 >
                   {minting
                     ? "Minting..."
@@ -152,38 +167,30 @@ export default function MCQQuiz() {
               )}
               <button
                 onClick={reset}
-                className="px-3 py-2 rounded bg-gray-700 hover:bg-gray-600"
+                className="terminal-btn px-4 py-2 text-sm"
               >
                 Reset
               </button>
-            <div className="text-lg font-semibold text-[#00FF66] font-mono">
-              Score: {score}/{questions.length} ({Math.round((score / questions.length) * 100)}%)
             </div>
-            <button 
-              onClick={reset} 
-              className="terminal-btn px-4 py-2 text-sm"
-            >
-              Reset
-            </button>
           </>
         )}
       </div>
 
       {!address && canEarnReward && !mintSuccess && (
-        <div className="mt-2 text-yellow-400">
+        <div className="mt-2 text-yellow-400 font-mono">
           ⚠️ Please connect your wallet using the button in the navigation bar
           to claim your reward
         </div>
       )}
 
       {mintError && (
-        <div className="mt-2 text-red-400">
+        <div className="mt-2 text-red-400 font-mono">
           Failed to mint reward: {mintError}
         </div>
       )}
 
       {mintSuccess && (
-        <div className="mt-2 text-emerald-400">
+        <div className="mt-2 text-emerald-400 font-mono">
           🎉 Reward successfully claimed! Check your wallet.
         </div>
       )}
