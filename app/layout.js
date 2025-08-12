@@ -1,17 +1,23 @@
-import "./globals.css"
-import "@/styles/terminal.css"
-import LayoutClient from "./layout.client"
+import "./globals.css";
+import "@/styles/terminal.css";
+import LayoutClient from "./layout.client";
 
 export const metadata = {
-  title: "demo",
-}
+  title: "SolMind - Learn & Earn",
+  description:
+    "Learn Solana development, complete challenges, and earn rewards in SOL",
+};
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="anonymous"
+        />
         <link
           href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&display=swap"
           rel="stylesheet"
@@ -21,5 +27,5 @@ export default function RootLayout({ children }) {
         <LayoutClient>{children}</LayoutClient>
       </body>
     </html>
-  )
+  );
 }

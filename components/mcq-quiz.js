@@ -12,6 +12,7 @@ export default function MCQQuiz() {
   const [minting, setMinting] = useState(false);
   const [mintError, setMintError] = useState(null);
   const [mintSuccess, setMintSuccess] = useState(false);
+  const [mintTx, setMintTx] = useState(null);
   const { address, connect, connecting } = useWallet();
 
   const score = submitted
@@ -58,6 +59,7 @@ export default function MCQQuiz() {
         throw new Error(result.error);
       }
       setMintSuccess(true);
+      setMintTx(result.txHash);
     } catch (error) {
       setMintError(error.message);
     } finally {
@@ -190,8 +192,13 @@ export default function MCQQuiz() {
       )}
 
       {mintSuccess && (
-        <div className="mt-2 text-emerald-400 font-mono">
-          🎉 Reward successfully claimed! Check your wallet.
+        <div className="mt-2 text-emerald-400 font-mono space-y-1">
+          <div>🎉 Reward successfully claimed! Check your wallet.</div>
+          {mintTx && (
+            <div className="text-sm opacity-80">
+              Transaction: <span className="text-cyan-300">{mintTx}</span>
+            </div>
+          )}
         </div>
       )}
     </div>

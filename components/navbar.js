@@ -13,19 +13,19 @@ export function Navbar() {
             href="/"
             className="text-[#00FF66] font-mono text-sm tracking-[0.08em] drop-shadow-[0_0_6px_#00FF66]"
           >
-            {"<name soon>"}
+            {"<solmind>"}
           </Link>
           <Link
             href="/challenges"
             className="text-cyan-300 hover:text-cyan-200 font-mono text-xs tracking-wide"
           >
-            [coding]
+            [learn]
           </Link>
           <Link
             href="/quiz"
             className="text-cyan-300 hover:text-cyan-200 font-mono text-xs tracking-wide"
           >
-            [mcq]
+            [quiz]
           </Link>
         </div>
         <ConnectWalletCommand />
