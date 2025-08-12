@@ -5,344 +5,369 @@ import { useState, useEffect, useMemo } from "react";
 import { useWallet } from "@/lib/wallet";
 import { mintQuizBadge } from "@/lib/mint-quiz-badge";
 
+// Quiz progress management
+function getStoredProgress() {
+  if (typeof window === "undefined") return {};
+  const stored = localStorage.getItem("solmind_quiz_progress");
+  return stored ? JSON.parse(stored) : {};
+}
+
 // Quiz Levels Data
 const QUIZ_LEVELS = {
   BEGINNER: {
-    id: 'beginner',
-    name: 'Beginner',
-    description: 'Basic Solana concepts and blockchain fundamentals',
+    id: "beginner",
+    name: "Beginner",
+    description: "Basic Solana concepts and blockchain fundamentals",
     requiredScore: 70,
     questions: [
       {
-        id: 'b1',
-        question: 'What is Solana?',
+        id: "b1",
+        question: "What is Solana?",
         options: [
-          'A centralized database',
-          'A high-performance blockchain platform',
-          'A programming language',
-          'A mobile application'
+          "A centralized database",
+          "A high-performance blockchain platform",
+          "A programming language",
+          "A mobile application",
         ],
         answer: 1,
-        explanation: 'Solana is a high-performance blockchain platform designed for decentralized applications and crypto-currencies.'
+        explanation:
+          "Solana is a high-performance blockchain platform designed for decentralized applications and crypto-currencies.",
       },
       {
-        id: 'b2',
-        question: 'What is the native cryptocurrency of Solana?',
-        options: ['ETH', 'BTC', 'SOL', 'ADA'],
+        id: "b2",
+        question: "What is the native cryptocurrency of Solana?",
+        options: ["ETH", "BTC", "SOL", "ADA"],
         answer: 2,
-        explanation: 'SOL is the native cryptocurrency of the Solana blockchain.'
+        explanation:
+          "SOL is the native cryptocurrency of the Solana blockchain.",
       },
       {
-        id: 'b3',
-        question: 'What consensus mechanism does Solana use?',
+        id: "b3",
+        question: "What consensus mechanism does Solana use?",
         options: [
-          'Proof of Work',
-          'Proof of Stake',
-          'Proof of History + Proof of Stake',
-          'Delegated Proof of Stake'
+          "Proof of Work",
+          "Proof of Stake",
+          "Proof of History + Proof of Stake",
+          "Delegated Proof of Stake",
         ],
         answer: 2,
-        explanation: 'Solana uses a unique combination of Proof of History (PoH) and Proof of Stake for consensus.'
+        explanation:
+          "Solana uses a unique combination of Proof of History (PoH) and Proof of Stake for consensus.",
       },
       {
-        id: 'b4',
-        question: 'What is a wallet in the context of Solana?',
+        id: "b4",
+        question: "What is a wallet in the context of Solana?",
         options: [
-          'A physical wallet for storing cash',
-          'A software that stores your private keys',
-          'A bank account',
-          'A mining device'
+          "A physical wallet for storing cash",
+          "A software that stores your private keys",
+          "A bank account",
+          "A mining device",
         ],
         answer: 1,
-        explanation: 'A wallet is software that stores your private keys and allows you to interact with the blockchain.'
+        explanation:
+          "A wallet is software that stores your private keys and allows you to interact with the blockchain.",
       },
       {
-        id: 'b5',
-        question: 'What is the approximate transaction speed of Solana?',
-        options: ['7 TPS', '1,000 TPS', '50,000+ TPS', '100 TPS'],
+        id: "b5",
+        question: "What is the approximate transaction speed of Solana?",
+        options: ["7 TPS", "1,000 TPS", "50,000+ TPS", "100 TPS"],
         answer: 2,
-        explanation: 'Solana can process over 50,000 transactions per second, making it one of the fastest blockchains.'
-      }
-    ]
+        explanation:
+          "Solana can process over 50,000 transactions per second, making it one of the fastest blockchains.",
+      },
+    ],
   },
   INTERMEDIATE: {
-    id: 'intermediate',
-    name: 'Intermediate',
-    description: 'Solana programs, accounts, and development basics',
+    id: "intermediate",
+    name: "Intermediate",
+    description: "Solana programs, accounts, and development basics",
     requiredScore: 75,
-    unlockRequirement: { level: 'beginner', minScore: 70 },
     questions: [
       {
-        id: 'i1',
-        question: 'What are Solana programs?',
+        id: "i1",
+        question: "What are Solana programs?",
         options: [
-          'User applications',
-          'Smart contracts on Solana',
-          'Operating system programs',
-          'Mining software'
+          "User applications",
+          "Smart contracts on Solana",
+          "Operating system programs",
+          "Mining software",
         ],
         answer: 1,
-        explanation: 'Solana programs are equivalent to smart contracts on other blockchains.'
+        explanation:
+          "Solana programs are equivalent to smart contracts on other blockchains.",
       },
       {
-        id: 'i2',
-        question: 'What language is primarily used for Solana program development?',
-        options: ['JavaScript', 'Python', 'Rust', 'Go'],
+        id: "i2",
+        question:
+          "What language is primarily used for Solana program development?",
+        options: ["JavaScript", "Python", "Rust", "Go"],
         answer: 2,
-        explanation: 'Rust is the primary language for developing Solana programs due to its performance and safety features.'
+        explanation:
+          "Rust is the primary language for developing Solana programs due to its performance and safety features.",
       },
       {
-        id: 'i3',
-        question: 'What is a Program Derived Address (PDA)?',
+        id: "i3",
+        question: "What is a Program Derived Address (PDA)?",
         options: [
-          'A regular wallet address',
-          'An address derived from a program ID and seeds',
-          'A validator address',
-          'A token mint address'
+          "A regular wallet address",
+          "An address derived from a program ID and seeds",
+          "A validator address",
+          "A token mint address",
         ],
         answer: 1,
-        explanation: 'PDAs are addresses derived deterministically from a program ID and optional seeds, allowing programs to control accounts.'
+        explanation:
+          "PDAs are addresses derived deterministically from a program ID and optional seeds, allowing programs to control accounts.",
       },
       {
-        id: 'i4',
-        question: 'What is the rent mechanism in Solana?',
+        id: "i4",
+        question: "What is the rent mechanism in Solana?",
         options: [
-          'Payment for using programs',
-          'Fee for creating accounts that must maintain minimum balance',
-          'Validator rewards',
-          'Transaction fees'
+          "Payment for using programs",
+          "Fee for creating accounts that must maintain minimum balance",
+          "Validator rewards",
+          "Transaction fees",
         ],
         answer: 1,
-        explanation: 'Rent is a mechanism requiring accounts to maintain a minimum balance to stay on the network, preventing spam.'
+        explanation:
+          "Rent is a mechanism requiring accounts to maintain a minimum balance to stay on the network, preventing spam.",
       },
       {
-        id: 'i5',
-        question: 'What is an instruction in Solana?',
+        id: "i5",
+        question: "What is an instruction in Solana?",
         options: [
-          'A compiler directive',
-          'A single operation to be processed by a program',
-          'A transaction type',
-          'A block validation rule'
+          "A compiler directive",
+          "A single operation to be processed by a program",
+          "A transaction type",
+          "A block validation rule",
         ],
         answer: 1,
-        explanation: 'An instruction is a single operation that tells a program what action to perform.'
-      }
-    ]
+        explanation:
+          "An instruction is a single operation that tells a program what action to perform.",
+      },
+    ],
   },
   ADVANCED: {
-    id: 'advanced',
-    name: 'Advanced',
-    description: 'Complex Solana concepts, DeFi, and advanced programming',
+    id: "advanced",
+    name: "Advanced",
+    description: "Complex Solana concepts, DeFi, and advanced programming",
     requiredScore: 80,
-    unlockRequirement: { level: 'intermediate', minScore: 75 },
     questions: [
       {
-        id: 'a1',
-        question: 'What is the purpose of the System Program in Solana?',
+        id: "a1",
+        question: "What is the purpose of the System Program in Solana?",
         options: [
-          'Managing tokens',
-          'Creating and managing accounts',
-          'Validating transactions',
-          'Storing program data'
+          "Managing tokens",
+          "Creating and managing accounts",
+          "Validating transactions",
+          "Storing program data",
         ],
         answer: 1,
-        explanation: 'The System Program is responsible for creating new accounts, transferring SOL, and managing account ownership.'
+        explanation:
+          "The System Program is responsible for creating new accounts, transferring SOL, and managing account ownership.",
       },
       {
-        id: 'a2',
-        question: 'What is Cross-Program Invocation (CPI)?',
+        id: "a2",
+        question: "What is Cross-Program Invocation (CPI)?",
         options: [
-          'A debugging technique',
-          'A way for one program to call another program',
-          'A consensus mechanism',
-          'A token standard'
+          "A debugging technique",
+          "A way for one program to call another program",
+          "A consensus mechanism",
+          "A token standard",
         ],
         answer: 1,
-        explanation: 'CPI allows one program to invoke instructions on another program, enabling composability.'
+        explanation:
+          "CPI allows one program to invoke instructions on another program, enabling composability.",
       },
       {
-        id: 'a3',
-        question: 'What is the purpose of the Token Program?',
+        id: "a3",
+        question: "What is the purpose of the Token Program?",
         options: [
-          'Mining tokens',
-          'Creating and managing SPL tokens',
-          'Validating blocks',
-          'Storing metadata'
+          "Mining tokens",
+          "Creating and managing SPL tokens",
+          "Validating blocks",
+          "Storing metadata",
         ],
         answer: 1,
-        explanation: 'The Token Program handles the creation, minting, and management of SPL (Solana Program Library) tokens.'
+        explanation:
+          "The Token Program handles the creation, minting, and management of SPL (Solana Program Library) tokens.",
       },
       {
-        id: 'a4',
-        question: 'What is a Metaplex NFT?',
+        id: "a4",
+        question: "What is a Metaplex NFT?",
         options: [
-          'A gaming token',
-          'A standardized NFT implementation on Solana',
-          'A DeFi protocol',
-          'A validator node'
+          "A gaming token",
+          "A standardized NFT implementation on Solana",
+          "A DeFi protocol",
+          "A validator node",
         ],
         answer: 1,
-        explanation: 'Metaplex provides the standard for creating and managing NFTs on Solana with rich metadata.'
+        explanation:
+          "Metaplex provides the standard for creating and managing NFTs on Solana with rich metadata.",
       },
       {
-        id: 'a5',
-        question: 'What is the difference between mutable and immutable accounts?',
+        id: "a5",
+        question:
+          "What is the difference between mutable and immutable accounts?",
         options: [
-          'Mutable accounts can be modified, immutable cannot',
-          'Immutable accounts cost more rent',
-          'Mutable accounts are faster',
-          'There is no difference'
+          "Mutable accounts can be modified, immutable cannot",
+          "Immutable accounts cost more rent",
+          "Mutable accounts are faster",
+          "There is no difference",
         ],
         answer: 0,
-        explanation: 'Mutable accounts can have their data modified after creation, while immutable accounts cannot be changed.'
-      }
-    ]
+        explanation:
+          "Mutable accounts can have their data modified after creation, while immutable accounts cannot be changed.",
+      },
+    ],
   },
   EXPERT: {
-    id: 'expert',
-    name: 'Expert',
-    description: 'Advanced DeFi, security, and optimization techniques',
+    id: "expert",
+    name: "Expert",
+    description: "Advanced DeFi, security, and optimization techniques",
     requiredScore: 85,
-    unlockRequirement: { level: 'advanced', minScore: 80 },
     questions: [
       {
-        id: 'e1',
-        question: 'What is a common security vulnerability in Solana programs?',
+        id: "e1",
+        question: "What is a common security vulnerability in Solana programs?",
         options: [
-          'Integer overflow',
-          'Signer authorization bypass',
-          'Reentrancy attacks',
-          'All of the above'
+          "Integer overflow",
+          "Signer authorization bypass",
+          "Reentrancy attacks",
+          "All of the above",
         ],
         answer: 3,
-        explanation: 'Solana programs can be vulnerable to various security issues including authorization bypasses, integer overflows, and reentrancy-like attacks.'
+        explanation:
+          "Solana programs can be vulnerable to various security issues including authorization bypasses, integer overflows, and reentrancy-like attacks.",
       },
       {
-        id: 'e2',
-        question: 'What is the purpose of account size optimization?',
+        id: "e2",
+        question: "What is the purpose of account size optimization?",
         options: [
-          'Reducing rent costs',
-          'Improving performance',
-          'Better data organization',
-          'All of the above'
+          "Reducing rent costs",
+          "Improving performance",
+          "Better data organization",
+          "All of the above",
         ],
         answer: 3,
-        explanation: 'Optimizing account size reduces rent costs, improves performance, and allows for better data organization.'
+        explanation:
+          "Optimizing account size reduces rent costs, improves performance, and allows for better data organization.",
       },
       {
-        id: 'e3',
-        question: 'What is a flash loan in DeFi context?',
+        id: "e3",
+        question: "What is a flash loan in DeFi context?",
         options: [
-          'A very fast loan',
-          'An uncollateralized loan that must be repaid in the same transaction',
-          'A loan with low interest',
-          'A loan for purchasing tokens'
+          "A very fast loan",
+          "An uncollateralized loan that must be repaid in the same transaction",
+          "A loan with low interest",
+          "A loan for purchasing tokens",
         ],
         answer: 1,
-        explanation: 'Flash loans are uncollateralized loans that must be borrowed and repaid within the same transaction.'
+        explanation:
+          "Flash loans are uncollateralized loans that must be borrowed and repaid within the same transaction.",
       },
       {
-        id: 'e4',
-        question: 'What is the purpose of compute budget in Solana?',
+        id: "e4",
+        question: "What is the purpose of compute budget in Solana?",
         options: [
-          'Limiting transaction costs',
-          'Preventing infinite loops and resource exhaustion',
-          'Optimizing validator performance',
-          'Managing network congestion'
+          "Limiting transaction costs",
+          "Preventing infinite loops and resource exhaustion",
+          "Optimizing validator performance",
+          "Managing network congestion",
         ],
         answer: 1,
-        explanation: 'Compute budget limits prevent transactions from consuming too many computational resources.'
+        explanation:
+          "Compute budget limits prevent transactions from consuming too many computational resources.",
       },
       {
-        id: 'e5',
-        question: 'What is Anchor framework used for?',
+        id: "e5",
+        question: "What is Anchor framework used for?",
         options: [
-          'Web development',
-          'Simplifying Solana program development with Rust',
-          'Mobile app development',
-          'Database management'
+          "Web development",
+          "Simplifying Solana program development with Rust",
+          "Mobile app development",
+          "Database management",
         ],
         answer: 1,
-        explanation: 'Anchor is a framework that provides higher-level abstractions for developing Solana programs in Rust.'
-      }
-    ]
-  }
+        explanation:
+          "Anchor is a framework that provides higher-level abstractions for developing Solana programs in Rust.",
+      },
+    ],
+  },
 };
 
 // Progress Tracking Class
-class QuizProgress {
+export class QuizProgress {
   constructor() {
-    this.storageKey = 'solmind_quiz_progress';
+    this.storageKey = "solmind_quiz_progress";
     this.loadProgress();
   }
 
   loadProgress() {
-    if (typeof window === 'undefined') {
+    if (typeof window === "undefined") {
       this.progress = {};
       return;
     }
-    
+
     try {
       const saved = localStorage.getItem(this.storageKey);
       this.progress = saved ? JSON.parse(saved) : {};
     } catch (e) {
-      console.warn('Failed to load quiz progress:', e);
+      console.warn("Failed to load quiz progress:", e);
       this.progress = {};
     }
   }
 
   saveProgress() {
-    if (typeof window === 'undefined') return;
-    
+    if (typeof window === "undefined") return;
+
     try {
       localStorage.setItem(this.storageKey, JSON.stringify(this.progress));
     } catch (e) {
-      console.warn('Failed to save quiz progress:', e);
+      console.warn("Failed to save quiz progress:", e);
     }
   }
 
   getLevelProgress(levelId) {
-    return this.progress[levelId] || {
-      completed: false,
-      bestScore: 0,
-      attempts: 0,
-      lastAttempt: null
-    };
+    return (
+      this.progress[levelId] || {
+        completed: false,
+        bestScore: 0,
+        attempts: 0,
+        lastAttempt: null,
+      }
+    );
   }
 
   updateLevelProgress(levelId, score, totalQuestions) {
     const current = this.getLevelProgress(levelId);
     const percentage = Math.round((score / totalQuestions) * 100);
-    
+    const requiredScore = QUIZ_LEVELS[levelId.toUpperCase()].requiredScore;
+
     this.progress[levelId] = {
-      completed: percentage >= QUIZ_LEVELS[levelId.toUpperCase()].requiredScore,
+      completed: percentage >= requiredScore || current.completed, // Keep completed status if already completed
       bestScore: Math.max(current.bestScore, percentage),
       attempts: current.attempts + 1,
-      lastAttempt: new Date().toISOString()
+      lastAttempt: new Date().toISOString(),
     };
-    
+
     this.saveProgress();
     return this.progress[levelId];
   }
 
   isLevelUnlocked(levelId) {
-    const level = QUIZ_LEVELS[levelId.toUpperCase()];
-    if (!level.unlockRequirement) return true;
-    
-    const requiredLevel = this.getLevelProgress(level.unlockRequirement.level);
-    return requiredLevel.bestScore >= level.unlockRequirement.minScore;
+    return true; // All levels are now always unlocked
   }
 
   getOverallProgress() {
     const levels = Object.keys(QUIZ_LEVELS);
-    const completed = levels.filter(levelId => 
-      this.getLevelProgress(levelId.toLowerCase()).completed
+    const completed = levels.filter(
+      (levelId) => this.getLevelProgress(levelId.toLowerCase()).completed
     ).length;
-    
+
     return {
       completed,
       total: levels.length,
-      percentage: Math.round((completed / levels.length) * 100)
+      percentage: Math.round((completed / levels.length) * 100),
     };
   }
 }
@@ -358,27 +383,33 @@ export default function LevelBasedQuiz() {
   const [mintError, setMintError] = useState(null);
   const [mintSuccess, setMintSuccess] = useState(false);
   const [mintTx, setMintTx] = useState(null);
-  
+  const [progress, setProgress] = useState({});
+
   const { address, connect } = useWallet();
   const quizProgress = useMemo(() => new QuizProgress(), []);
-  const [progressData, setProgressData] = useState({});
 
+  // Initialize progress only once when component mounts
   useEffect(() => {
-    // Load progress data
-    const progress = {};
-    Object.keys(QUIZ_LEVELS).forEach(levelId => {
-      progress[levelId.toLowerCase()] = quizProgress.getLevelProgress(levelId.toLowerCase());
+    const loadedProgress = {};
+    Object.keys(QUIZ_LEVELS).forEach((levelId) => {
+      loadedProgress[levelId.toLowerCase()] = quizProgress.getLevelProgress(
+        levelId.toLowerCase()
+      );
     });
-    setProgressData(progress);
+    setProgress(loadedProgress);
   }, [quizProgress]);
 
   const score = useMemo(() => {
     if (!submitted) return 0;
-    return answers.reduce((s, a, i) => s + (a === currentQuestions[i]?.answer ? 1 : 0), 0);
+    return answers.reduce(
+      (s, a, i) => s + (a === currentQuestions[i]?.answer ? 1 : 0),
+      0
+    );
   }, [submitted, answers, currentQuestions]);
 
-  const percentage = useMemo(() => 
-    Math.round((score / currentQuestions.length) * 100), [score, currentQuestions.length]
+  const percentage = useMemo(
+    () => Math.round((score / currentQuestions.length) * 100),
+    [score, currentQuestions.length]
   );
 
   const canEarnReward = useMemo(() => {
@@ -386,10 +417,20 @@ export default function LevelBasedQuiz() {
     return percentage >= QUIZ_LEVELS[selectedLevel.toUpperCase()].requiredScore;
   }, [percentage, selectedLevel]);
 
+  useEffect(() => {
+    setProgress(getStoredProgress());
+  }, []);
+
+  const handleQuizComplete = (levelId, score) => {
+    const percentage = Math.round(score * 100);
+    saveProgress(levelId, percentage);
+    setProgress(getStoredProgress());
+  };
+
   function selectLevel(levelId) {
     const level = QUIZ_LEVELS[levelId.toUpperCase()];
-    if (!level || !quizProgress.isLevelUnlocked(levelId)) return;
-    
+    if (!level) return;
+
     setSelectedLevel(levelId);
     setCurrentQuestions(level.questions);
     setAnswers(Array(level.questions.length).fill(null));
@@ -417,17 +458,17 @@ export default function LevelBasedQuiz() {
   function submitQuiz() {
     setSubmitted(true);
     setShowResults(true);
-    
+
     // Update progress
     const updatedProgress = quizProgress.updateLevelProgress(
-      selectedLevel, 
-      score, 
+      selectedLevel,
+      score,
       currentQuestions.length
     );
-    
-    setProgressData(prev => ({
+
+    setProgress((prev) => ({
       ...prev,
-      [selectedLevel]: updatedProgress
+      [selectedLevel]: updatedProgress,
     }));
   }
 
@@ -449,6 +490,25 @@ export default function LevelBasedQuiz() {
     setMintError(null);
     setMintSuccess(false);
     setMintTx(null);
+  }
+
+  // Get the next level ID
+  const getNextLevelId = (currentLevelId) => {
+    const levels = Object.keys(QUIZ_LEVELS);
+    const currentIndex = levels.findIndex(
+      (id) => id.toLowerCase() === currentLevelId
+    );
+    return currentIndex < levels.length - 1
+      ? levels[currentIndex + 1].toLowerCase()
+      : null;
+  };
+
+  // Move to next level function
+  function moveToNextLevel() {
+    const nextLevelId = getNextLevelId(selectedLevel);
+    if (nextLevelId) {
+      selectLevel(nextLevelId);
+    }
   }
 
   async function handleMintReward() {
@@ -479,38 +539,27 @@ export default function LevelBasedQuiz() {
   // Level Selection View
   if (!selectedLevel) {
     const overallProgress = quizProgress.getOverallProgress();
-    
+
     return (
       <div className="space-y-6">
         <div className="text-center mb-8">
-          <h2 className="text-2xl font-bold text-[#00FF66] mb-2">Quiz Levels</h2>
-          <p className="text-emerald-300 font-mono">
-            Progress: {overallProgress.completed}/{overallProgress.total} levels completed ({overallProgress.percentage}%)
-          </p>
-          <div className="w-full bg-black/40 rounded-full h-2 mt-2">
-            <div 
-              className="bg-gradient-to-r from-emerald-500 to-cyan-400 h-2 rounded-full transition-all duration-300"
-              style={{ width: `${overallProgress.percentage}%` }}
-            />
-          </div>
+          <h2 className="text-2xl font-bold text-[#00FF66] mb-2">
+            Quiz Levels
+          </h2>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">
           {Object.entries(QUIZ_LEVELS).map(([levelId, level]) => {
             const levelKey = levelId.toLowerCase();
-            const progress = progressData[levelKey] || {};
-            const isUnlocked = quizProgress.isLevelUnlocked(levelKey);
-            const isCompleted = progress.completed;
+            const levelProgress =
+              progress[levelKey] || quizProgress.getLevelProgress(levelKey);
+            const isCompleted = levelProgress.completed;
 
             return (
               <div
                 key={levelId}
-                className={`terminal-window p-6 transition-all duration-200 ${
-                  isUnlocked 
-                    ? 'cursor-pointer hover:border-emerald-500/40 hover:bg-black/60' 
-                    : 'opacity-50 cursor-not-allowed'
-                }`}
-                onClick={() => isUnlocked && selectLevel(levelKey)}
+                className="terminal-window p-6 transition-all duration-200 cursor-pointer hover:border-emerald-500/40 hover:bg-black/60"
+                onClick={() => selectLevel(levelKey)}
               >
                 <div className="flex items-start justify-between mb-3">
                   <h3 className="text-lg font-semibold text-cyan-300">
@@ -522,32 +571,37 @@ export default function LevelBasedQuiz() {
                         ✓ Completed
                       </span>
                     )}
-                    {!isUnlocked && (
-                      <span className="px-2 py-1 text-xs bg-yellow-500/20 text-yellow-300 rounded">
-                        🔒 Locked
-                      </span>
-                    )}
                   </div>
                 </div>
-                
+
                 <p className="text-sm text-emerald-100/70 mb-4">
                   {level.description}
                 </p>
-                
+
                 <div className="space-y-2 text-xs font-mono">
                   <div className="flex justify-between">
                     <span>Questions:</span>
-                    <span className="text-cyan-300">{level.questions.length}</span>
+                    <span className="text-cyan-300">
+                      {level.questions.length}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span>Required Score:</span>
-                    <span className="text-cyan-300">{level.requiredScore}%</span>
+                    <span className="text-cyan-300">
+                      {level.requiredScore}%
+                    </span>
                   </div>
-                  {progress.bestScore > 0 && (
+                  {levelProgress.bestScore > 0 && (
                     <div className="flex justify-between">
                       <span>Best Score:</span>
-                      <span className={`${progress.bestScore >= level.requiredScore ? 'text-emerald-300' : 'text-yellow-300'}`}>
-                        {progress.bestScore}%
+                      <span
+                        className={`${
+                          levelProgress.bestScore >= level.requiredScore
+                            ? "text-emerald-300"
+                            : "text-yellow-300"
+                        }`}
+                      >
+                        {levelProgress.bestScore}%
                       </span>
                     </div>
                   )}
@@ -558,12 +612,6 @@ export default function LevelBasedQuiz() {
                     </div>
                   )}
                 </div>
-
-                {level.unlockRequirement && !isUnlocked && (
-                  <div className="mt-3 text-xs text-yellow-300/70">
-                    Unlock by scoring {level.unlockRequirement.minScore}% in {level.unlockRequirement.level}
-                  </div>
-                )}
               </div>
             );
           })}
@@ -574,7 +622,7 @@ export default function LevelBasedQuiz() {
 
   // Quiz View
   const currentLevel = QUIZ_LEVELS[selectedLevel.toUpperCase()];
-  
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -586,11 +634,16 @@ export default function LevelBasedQuiz() {
           ← Back to Levels
         </button>
         <div className="text-center">
-          <h2 className="text-xl font-bold text-[#00FF66]">{currentLevel.name} Quiz</h2>
-          <p className="text-sm text-emerald-300/70">{currentLevel.description}</p>
+          <h2 className="text-xl font-bold text-[#00FF66]">
+            {currentLevel.name} Quiz
+          </h2>
+          <p className="text-sm text-emerald-300/70">
+            {currentLevel.description}
+          </p>
         </div>
         <div className="text-sm font-mono">
-          {currentQuestions.length} questions | {currentLevel.requiredScore}% to pass
+          {currentQuestions.length} questions | {currentLevel.requiredScore}% to
+          pass
         </div>
       </div>
 
@@ -599,12 +652,21 @@ export default function LevelBasedQuiz() {
         <div className="mb-6">
           <div className="flex justify-between text-sm font-mono mb-2">
             <span>Progress</span>
-            <span>{answers.filter(a => a !== null).length}/{currentQuestions.length}</span>
+            <span>
+              {answers.filter((a) => a !== null).length}/
+              {currentQuestions.length}
+            </span>
           </div>
           <div className="w-full bg-black/40 rounded-full h-2">
-            <div 
+            <div
               className="bg-gradient-to-r from-emerald-500 to-cyan-400 h-2 rounded-full transition-all duration-300"
-              style={{ width: `${(answers.filter(a => a !== null).length / currentQuestions.length) * 100}%` }}
+              style={{
+                width: `${
+                  (answers.filter((a) => a !== null).length /
+                    currentQuestions.length) *
+                  100
+                }%`,
+              }}
             />
           </div>
         </div>
@@ -622,8 +684,9 @@ export default function LevelBasedQuiz() {
               {question.options.map((option, oi) => {
                 const chosen = picked === oi;
                 const correct = submitted && oi === question.answer;
-                const wrongChosen = submitted && chosen && oi !== question.answer;
-                
+                const wrongChosen =
+                  submitted && chosen && oi !== question.answer;
+
                 return (
                   <label
                     key={oi}
@@ -654,19 +717,21 @@ export default function LevelBasedQuiz() {
                 );
               })}
             </div>
-            
+
             {/* Show explanation after submission */}
             {submitted && question.explanation && (
               <div className="mt-4 p-3 bg-emerald-500/10 border border-emerald-500/20 rounded">
                 <div className="text-sm text-emerald-300 font-mono mb-1">
-                  <strong>Correct Answer:</strong> {String.fromCharCode(65 + question.answer)}. {question.options[question.answer]}
+                  <strong>Correct Answer:</strong>{" "}
+                  {String.fromCharCode(65 + question.answer)}.{" "}
+                  {question.options[question.answer]}
                 </div>
                 <div className="text-sm text-emerald-100/80">
                   <strong>Explanation:</strong> {question.explanation}
                 </div>
               </div>
             )}
-            
+
             {/* Clear button */}
             {picked !== null && !submitted && (
               <div className="absolute bottom-2 right-4">
@@ -687,7 +752,7 @@ export default function LevelBasedQuiz() {
         {!submitted ? (
           <button
             onClick={submitQuiz}
-            disabled={answers.some(a => a === null)}
+            disabled={answers.some((a) => a === null)}
             className="terminal-btn px-6 py-3 text-base disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Submit Quiz
@@ -695,14 +760,24 @@ export default function LevelBasedQuiz() {
         ) : (
           <>
             <div className="text-center space-y-2">
-              <div className={`text-2xl font-bold font-mono ${canEarnReward ? 'text-emerald-400' : 'text-yellow-400'}`}>
+              <div
+                className={`text-2xl font-bold font-mono ${
+                  canEarnReward ? "text-emerald-400" : "text-yellow-400"
+                }`}
+              >
                 Score: {score}/{currentQuestions.length} ({percentage}%)
               </div>
-              <div className={`text-lg font-mono ${canEarnReward ? 'text-emerald-300' : 'text-red-300'}`}>
-                {canEarnReward ? '🎉 Congratulations! You passed!' : `❌ You need ${currentLevel.requiredScore}% to pass`}
+              <div
+                className={`text-lg font-mono ${
+                  canEarnReward ? "text-emerald-300" : "text-red-300"
+                }`}
+              >
+                {canEarnReward
+                  ? "🎉 Congratulations! You passed!"
+                  : `❌ You need ${currentLevel.requiredScore}% to pass`}
               </div>
             </div>
-            
+
             <div className="flex gap-3 justify-center flex-wrap">
               {canEarnReward && !mintSuccess && (
                 <button
@@ -717,16 +792,18 @@ export default function LevelBasedQuiz() {
                     : "Claim Achievement Badge"}
                 </button>
               )}
-              <button
-                onClick={resetQuiz}
-                className="terminal-btn px-4 py-2"
-              >
+              {canEarnReward && getNextLevelId(selectedLevel) && (
+                <button
+                  onClick={moveToNextLevel}
+                  className="terminal-btn px-6 py-3 bg-gradient-to-r from-emerald-500/20 to-cyan-500/20 hover:from-emerald-500/30 hover:to-cyan-500/30"
+                >
+                  Continue to Next Level →
+                </button>
+              )}
+              <button onClick={resetQuiz} className="terminal-btn px-4 py-2">
                 Try Again
               </button>
-              <button
-                onClick={backToLevels}
-                className="terminal-btn px-4 py-2"
-              >
+              <button onClick={backToLevels} className="terminal-btn px-4 py-2">
                 Back to Levels
               </button>
             </div>

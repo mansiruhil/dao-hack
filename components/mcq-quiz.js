@@ -44,7 +44,15 @@ export default function MCQQuiz() {
   }
 
   async function handleMintReward() {
-    if (!address) return;
+    if (!address) {
+      try {
+        await connect();
+        return; // Return here as the connection process will trigger a re-render
+      } catch (error) {
+        setMintError("Failed to connect wallet: " + error.message);
+        return;
+      }
+    }
 
     setMinting(true);
     setMintError(null);
@@ -157,13 +165,15 @@ export default function MCQQuiz() {
               {canEarnReward && !mintSuccess && (
                 <button
                   onClick={handleMintReward}
-                  disabled={minting || !address}
+                  disabled={minting || connecting}
                   className="terminal-btn px-6 py-3"
                 >
                   {minting
                     ? "Minting..."
+                    : connecting
+                    ? "Connecting..."
                     : !address
-                    ? "Connect Wallet in Navigation Bar"
+                    ? "Connect Wallet to Claim"
                     : "Claim Reward"}
                 </button>
               )}
@@ -178,10 +188,15 @@ export default function MCQQuiz() {
         )}
       </div>
 
-      {!address && canEarnReward && !mintSuccess && (
+      {!address && canEarnReward && !mintSuccess && !connecting && (
         <div className="mt-2 text-yellow-400 font-mono">
-          ⚠️ Please connect your wallet using the button in the navigation bar
-          to claim your reward
+          ⚠️ Click the "Connect Wallet to Claim" button above to connect your
+          wallet and claim your reward
+        </div>
+      )}
+      {connecting && (
+        <div className="mt-2 text-cyan-300 font-mono">
+          Connecting to wallet...
         </div>
       )}
 
@@ -193,10 +208,20 @@ export default function MCQQuiz() {
 
       {mintSuccess && (
         <div className="mt-2 text-emerald-400 font-mono space-y-1">
-          <div>🎉 Reward successfully claimed! Check your wallet.</div>
+          <div>🎉 Your reward has been sent! Check your wallet.</div>
           {mintTx && (
             <div className="text-sm opacity-80">
-              Transaction: <span className="text-cyan-300">{mintTx}</span>
+              <div>
+                Transaction: <span className="text-cyan-300">{mintTx}</span>
+              </div>
+              <a
+                href={`https://solscan.io/tx/${mintTx}?cluster=devnet`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-cyan-300 hover:text-cyan-200 cursor-pointer"
+              >
+                View on Solscan →
+              </a>
             </div>
           )}
         </div>
