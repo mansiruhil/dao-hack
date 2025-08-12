@@ -24,6 +24,8 @@ export default function RootLayout({ children }) {
       </head>
       <body className="bg-[#0D0D0D] font-mono text-[#D0FFD0] antialiased">
         <LayoutClient>{children}</LayoutClient>
+            {/* solmind voice agent powered by omnidimension*/}
+            <script id="omnidimension-web-widget" async src="https://backend.omnidim.io/web_widget.js?secret_key=fbade80d7f7844dde5151bd08a280569" ></script>
       </body>
     </html>
   )
