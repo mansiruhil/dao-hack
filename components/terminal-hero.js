@@ -42,7 +42,7 @@ export function TerminalHero({ onEnter = () => {}, autoProceed = false }) {
           className="terminal-window"
         >
           <TypingLine
-            text="> Initializing Bug Slayer Arena..."
+            text="> Initializing solmind..."
             onDone={() => setStep(1)}
           />
           {step >= 1 && (

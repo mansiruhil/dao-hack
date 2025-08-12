@@ -13,7 +13,7 @@ export function Navbar() {
             href="/"
             className="text-[#00FF66] font-mono text-sm tracking-[0.08em] drop-shadow-[0_0_6px_#00FF66]"
           >
-            {"<solmind>"}
+            {"<SolMind>"}
           </Link>
           <Link
             href="/challenges"
