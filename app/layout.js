@@ -3,7 +3,7 @@ import "@/styles/terminal.css"
 import LayoutClient from "./layout.client"
 
 export const metadata = {
-  title: "demo",
+  title: "solmind",
   icons: {
     icon: "/logo.jpg",
     shortcut: "/logo.jpg",
