@@ -6,6 +6,11 @@ export const metadata = {
   title: "SolMind - Learn & Earn",
   description:
     "Learn Solana development, complete challenges, and earn rewards in SOL",
+  icons: {
+    icon: "/logo.jpg",
+    shortcut: "/logo.jpg",
+    apple: "/logo.jpg",
+  },
 };
 
 export default function RootLayout({ children }) {
