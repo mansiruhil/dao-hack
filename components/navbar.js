@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useWallet } from "@/lib/wallet";
 import "@/styles/terminal.css";
@@ -36,12 +37,26 @@ export function Navbar() {
 
 function ConnectWalletCommand() {
   const { connect, disconnect, isConnected, connecting, address } = useWallet();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Don't render anything until client-side
+  if (!mounted) {
+    return <div className="w-24" />; // placeholder to prevent layout shift
+  }
+
+  const buttonText = connecting
+    ? "[connecting...]"
+    : isConnected
+    ? `[${address?.slice(0, 4)}...${address?.slice(-4)}]`
+    : "[connect wallet]";
 
   return (
     <button
-      className={`text-cyan-300 hover:text-cyan-200 font-mono text-xs tracking-wide ${
-        connecting ? "opacity-60" : "cursor-pointer"
-      }`}
+      className="text-cyan-300 hover:text-cyan-200 font-mono text-xs tracking-wide disabled:opacity-60 disabled:cursor-default"
       disabled={connecting}
       onClick={async () => {
         if (isConnected) {
@@ -51,11 +66,7 @@ function ConnectWalletCommand() {
         }
       }}
     >
-      {connecting
-        ? "[connecting...]"
-        : isConnected
-        ? `[${address?.slice(0, 4)}...${address?.slice(-4)}]`
-        : "[connect wallet]"}
+      {buttonText}
     </button>
   );
 }
