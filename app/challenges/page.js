@@ -44,7 +44,7 @@ export default function ChallengesPage() {
         </Link>
       </nav>
       <main className="mx-auto max-w-6xl px-4 py-10 sm:py-14">
-        <h1 className="terminal-heading">{"> solmind — learn"}</h1>
+        <h1 className="terminal-heading">{"> SolMind — learn"}</h1>
         <div className="mt-4 rounded-lg border border-emerald-500/20 bg-black/40 shadow-[0_0_30px_rgba(0,255,102,0.08)]">
           {loading ? (
             <div className="p-4 text-emerald-300">
